@@ -1,7 +1,5 @@
 <?php
-// your_app_root/app/views/login_view.php
 
-// $message variable is passed from the controller
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -1,17 +1,14 @@
 <?php
-// your_app_root/app/models/User.php
 
 class User {
     private $conn;
 
     public function __construct() {
-        // Get database connection from the global function
+       
         $this->conn = getDbConnection();
     }
 
     /**
-     * Creates a new user in the database.
-     *
      * @param string $username The user's chosen username.
      * @param string $password The user's plain-text password.
      * @param string $email The user's email address.
@@ -19,8 +16,9 @@ class User {
      * @param string $birthdate The user's birth date (YYYY-MM-DD).
      * @return array An associative array with 'success' (boolean) and 'message' (string).
      */
+
     public function createUser($username, $password, $email, $fullname, $birthdate) {
-        // Check if username or email already exists
+        
         $stmt = $this->conn->prepare("SELECT id FROM newUsers WHERE username = ? OR email = ?");
         $stmt->bind_param("ss", $username, $email);
         $stmt->execute();
@@ -32,12 +30,9 @@ class User {
         }
         $stmt->close();
 
-        // Hash the password before storing
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-        // Prepare and execute the SQL query to insert the new user
         $stmt = $this->conn->prepare("INSERT INTO newUsers (username, password, email, fullname, birthDate) VALUES (?, ?, ?, ?, ?)");
-        // 'sssss' because birthdate is also a string (YYYY-MM-DD)
         $stmt->bind_param("sssss", $username, $hashed_password, $email, $fullname, $birthdate);
 
         if ($stmt->execute()) {
@@ -52,8 +47,6 @@ class User {
 
 
     /**
-     * Authenticates a user.
-     *
      * @param string $username The username provided by the user.
      * @param string $password The plain-text password provided by the user.
      * @return array An associative array with 'success' (boolean), 'message' (string), and 'user' (array|null).
@@ -66,10 +59,8 @@ class User {
 
         if ($result->num_rows === 1) {
             $user = $result->fetch_assoc();
-            // Verify the hashed password
             if (password_verify($password, $user['password'])) {
                 $stmt->close();
-                // Remove password hash before returning user data
                 unset($user['password']);
                 return ['success' => true, 'message' => 'Login successful!', 'user' => $user];
             } else {
@@ -83,7 +74,6 @@ class User {
     }
 
     public function __destruct() {
-        // Close the database connection when the object is destroyed
         if ($this->conn) {
             $this->conn->close();
         }
